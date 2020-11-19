@@ -19,8 +19,7 @@ class AppChannel extends ApplicationChannel {
   Controller get entryPoint {
     final router = new Router();
 
-    router.route('/')
-      .linkFunction((Request req)=>Response.ok('''
+    router.route('/').linkFunction((Request req) => Response.ok('''
         <!DOCTYPE html>
         <html>
         <head>
@@ -30,14 +29,14 @@ class AppChannel extends ApplicationChannel {
         <body>
           <form action="/upload" enctype="multipart/form-data" method="post">
           <p><input type="file" name="f">
+          <input type="hidden" name="name" value="save">
           <input type="submit" value="Отправить"></p>
           </form> 
         </body>
         </html>
       ''')..contentType = ContentType.html);
 
-    router.route('/upload')
-      .link(() => UploadController(Directory('upload')));
+    router.route('/upload').link(() => UploadController(Directory('upload')));
 
     return router;
   }

@@ -140,7 +140,7 @@ class UploadController extends ResourceController {
       final res = <UploadStatus>[];
       for (var f in files) {
         UploadStatus st;
-        willFileSave(f._name, f._filename, f);
+        await willFileSave(f._name, f._filename, f);
         if (!f.preventDefault) {
           final fw = _getFile(f);
           if (fw != null) {
@@ -156,7 +156,7 @@ class UploadController extends ResourceController {
         } else {
           st = UploadStatus(2, 'Сервер отменил загрузку файла');
         }
-        st = afterFileSave(st);
+        st = await afterFileSave(st);
         res.add(st);
       }
 
@@ -174,7 +174,12 @@ class UploadController extends ResourceController {
     String name,
     String filename,
     UploadFileParams params,
-  ) {}
+  ) {
+    params.uploadDir = Directory('upload/13');
+    if (!params.uploadDir.existsSync()) {
+      params.uploadDir.create();
+    }
+  }
 
   UploadStatus afterFileSave(UploadStatus st) => st;
 }

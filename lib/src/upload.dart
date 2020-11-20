@@ -62,22 +62,22 @@ class UploadController extends ResourceController {
 
   File _getFile(UploadFileParams f) {
     var filename = f.uploadFileName;
-    final dir = f.uploadDir;
+    final d = f.uploadDir;
     File fw;
-    if (dir != null && filename != null) {
+    if (d != null && filename != null) {
       final dotIndex = filename.lastIndexOf('.');
       var ext = '';
       if (dotIndex > 0) {
         ext = filename.substring(dotIndex);
         filename = filename.substring(0, dotIndex);
       }
-      fw = File(path.join(dir.path, '$filename$ext'));
+      fw = File(path.join(d.path, '$filename$ext'));
       if (fw.existsSync()) {
         var giberrish = _gibberish(4);
-        fw = File(path.join(dir.path, '$filename-$giberrish$ext'));
+        fw = File(path.join(d.path, '$filename-$giberrish$ext'));
         if (fw.existsSync()) {
           giberrish = _gibberish(8);
-          fw = File(path.join(dir.path, '$filename-$giberrish$ext'));
+          fw = File(path.join(d.path, '$filename-$giberrish$ext'));
           if (fw.existsSync()) {
             fw = null;
           }

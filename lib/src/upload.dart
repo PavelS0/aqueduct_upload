@@ -153,6 +153,8 @@ class UploadController extends ResourceController {
           } else {
             st = UploadStatus(1, 'Произошла ошибка во время загрузки файла');
           }
+        } else {
+          st = UploadStatus(2, 'Сервер отменил загрузку файла');
         }
         st = afterFileSave(st);
         res.add(st);

@@ -148,7 +148,7 @@ class UploadController extends ResourceController {
             await sink.addStream(f.data);
             await sink.close();
             st = UploadStatus(0, 'Файл успешно загружен',
-                newName: '/${dir.path}/${path.basename(fw.path)}',
+                newName: '/${f.uploadDir.path}/${path.basename(fw.path)}',
                 oldName: f._filename);
           } else {
             st = UploadStatus(1, 'Произошла ошибка во время загрузки файла');

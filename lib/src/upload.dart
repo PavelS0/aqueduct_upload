@@ -37,7 +37,7 @@ class UploadStatus {
   String newName;
 
   Map<String, dynamic> toJson() =>
-      {'code': code, 'status': status, 'oldName': newName, 'newName': oldName};
+      {'code': code, 'status': status, 'oldName': oldName, 'newName': newName};
 }
 
 class UploadController extends ResourceController {

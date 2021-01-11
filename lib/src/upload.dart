@@ -175,7 +175,6 @@ class UploadController extends ResourceController {
     String filename,
     UploadFileParams params,
   ) {
-    params.uploadDir = Directory('upload/13');
     if (!params.uploadDir.existsSync()) {
       params.uploadDir.create();
     }

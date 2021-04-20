@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'dart:convert';
-import 'package:aqueduct/aqueduct.dart';
+import 'package:conduit/conduit.dart';
 import 'package:mime/mime.dart';
 import 'package:translit/translit.dart';
 import 'package:path/path.dart' as path;
@@ -12,25 +12,29 @@ typedef String OnBeforeFileUpload(String first, String second);
 class UploadFileParams {
   final String _filename;
   final String _name;
-  Directory uploadDir;
-  String uploadFileName;
-  MimeMultipart data;
-  bool preventDefault;
+  Directory? uploadDir;
+  String uploadFileName = '';
+  MimeMultipart? data;
+  bool preventDefault = false;
   UploadFileParams(this._filename, this._name);
 }
 
 class UploadField {
-  String name;
+  String name = '';
   Future<String> getStringRepresentation() async {
-    final list = await data.transform(utf8.decoder).toList();
-    return list.join();
+    final d = data;
+    if (d != null) {
+      final list = await d.transform(utf8.decoder).toList();
+      return list.join();
+    }
+    return '';
   }
 
-  MimeMultipart data;
+  MimeMultipart? data;
 }
 
 class UploadStatus {
-  UploadStatus(this.code, this.status, {this.newName, this.oldName});
+  UploadStatus(this.code, this.status, {this.newName = '', this.oldName = ''});
   int code;
   String status;
   String oldName;
@@ -60,11 +64,11 @@ class UploadController extends ResourceController {
     return pass.toString();
   }
 
-  File _getFile(UploadFileParams f) {
+  File? _getFile(UploadFileParams f) {
     var filename = f.uploadFileName;
     final d = f.uploadDir;
-    File fw;
-    if (d != null && filename != null) {
+    File? fw;
+    if (d != null) {
       final dotIndex = filename.lastIndexOf('.');
       var ext = '';
       if (dotIndex > 0) {
@@ -111,17 +115,17 @@ class UploadController extends ResourceController {
   FutureOr<RequestOrResponse> willProcessRequest(Request req) async {
     final raw = req.raw;
     if (raw.method == 'POST') {
-      final boundary = raw.headers.contentType.parameters["boundary"];
-      final transformer = MimeMultipartTransformer(boundary);
+      final boundary = raw.headers.contentType!.parameters["boundary"];
+      final transformer = MimeMultipartTransformer(boundary!);
       final parts = await transformer.bind(raw).toList();
 
       final files = <UploadFileParams>[];
       for (var p in parts) {
         final contentDisposition =
-            parseContentDispostition(p.headers["content-disposition"]);
+            parseContentDispostition(p.headers["content-disposition"]!);
         if (contentDisposition.containsKey('filename')) {
           final f = UploadFileParams(
-              contentDisposition['filename'], contentDisposition['name']);
+              contentDisposition['filename']!, contentDisposition['name']!);
           f.uploadDir = dir;
           f.uploadFileName = Translit()
               .toTranslit(source: f._filename)
@@ -132,7 +136,7 @@ class UploadController extends ResourceController {
         } else if (contentDisposition.containsKey('name')) {
           final f = UploadField();
           f.data = p;
-          f.name = contentDisposition['name'];
+          f.name = contentDisposition['name']!;
           fields[f.name] = f;
         }
       }
@@ -145,10 +149,10 @@ class UploadController extends ResourceController {
           final fw = _getFile(f);
           if (fw != null) {
             final sink = fw.openWrite();
-            await sink.addStream(f.data);
+            await sink.addStream(f.data!);
             await sink.close();
             st = UploadStatus(0, 'Файл успешно загружен',
-                newName: '/${f.uploadDir.path}/${path.basename(fw.path)}',
+                newName: '/${f.uploadDir!.path}/${path.basename(fw.path)}',
                 oldName: f._filename);
           } else {
             st = UploadStatus(1, 'Произошла ошибка во время загрузки файла');
@@ -175,8 +179,9 @@ class UploadController extends ResourceController {
     String filename,
     UploadFileParams params,
   ) {
-    if (!params.uploadDir.existsSync()) {
-      params.uploadDir.create();
+    final dir = params.uploadDir;
+    if (dir != null && !dir.existsSync()) {
+      dir.create();
     }
   }
 

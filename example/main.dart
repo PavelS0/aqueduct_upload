@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:aqueduct/aqueduct.dart';
+import 'package:conduit/conduit.dart';
 import 'package:aqueduct_upload/upload_aqueduct.dart';
 
 ///

@@ -1,6 +1,6 @@
 name: aqueduct_upload
 description: A upload controller for Aqueduct apps.
-version: 2.1.0
+version: 2.1.1
 author: Pavel Snitko <brian57reg@gmail.com>
 homepage: https://github.com/PavelS0/
 environment:

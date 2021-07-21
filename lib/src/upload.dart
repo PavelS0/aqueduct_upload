@@ -75,17 +75,10 @@ class UploadController extends ResourceController {
         ext = filename.substring(dotIndex);
         filename = filename.substring(0, dotIndex);
       }
-      fw = File(path.join(d.path, '$filename$ext'));
+      var giberrish = _gibberish(8);
+      fw = File(path.join(d.path, '$filename-$giberrish$ext'));
       if (fw.existsSync()) {
-        var giberrish = _gibberish(4);
-        fw = File(path.join(d.path, '$filename-$giberrish$ext'));
-        if (fw.existsSync()) {
-          giberrish = _gibberish(8);
-          fw = File(path.join(d.path, '$filename-$giberrish$ext'));
-          if (fw.existsSync()) {
-            fw = null;
-          }
-        }
+        fw = null;
       }
     }
     return fw;
@@ -111,6 +104,32 @@ class UploadController extends ResourceController {
     return map;
   }
 
+  String removeDuplicates(String s, String symb) {
+    int pos = s.indexOf(symb, 0);
+
+    if (pos == -1) {
+      return s;
+    } else {
+      String n = '';
+      int c = 0;
+      final duplicates = (String s, int pos) {
+        int n = pos + 1;
+        while (s[n] == symb) n++;
+        return n - pos - 1;
+      };
+      while (pos != -1) {
+        int dp = duplicates(s, pos++);
+        if (dp > 0) {
+          n += s.substring(c, pos);
+          c += pos + dp;
+        }
+        pos = s.indexOf(symb, pos);
+      }
+      n += s.substring(c);
+      return n;
+    }
+  }
+
   @override
   FutureOr<RequestOrResponse> willProcessRequest(Request req) async {
     final raw = req.raw;
@@ -127,9 +146,13 @@ class UploadController extends ResourceController {
           final f = UploadFileParams(
               contentDisposition['filename']!, contentDisposition['name']!);
           f.uploadDir = dir;
-          f.uploadFileName = Translit()
-              .toTranslit(source: f._filename)
-              .replaceAll(defaultNameRegExp, '-');
+
+          final t = Translit();
+          var n = t.toTranslit(source: f._filename);
+          n = n.replaceAll(defaultNameRegExp, '-');
+          n = removeDuplicates(n, '-');
+
+          f.uploadFileName = n;
           f.preventDefault = false;
           f.data = p;
           files.add(f);

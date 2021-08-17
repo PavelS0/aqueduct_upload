@@ -112,18 +112,20 @@ class UploadController extends ResourceController {
     } else {
       String n = '';
       int c = 0;
-      final duplicates = (String s, int pos) {
+
+      int duplicates(String s, int pos) {
         int n = pos + 1;
         while (s[n] == symb) n++;
         return n - pos - 1;
-      };
+      }
+
       while (pos != -1) {
         int dp = duplicates(s, pos++);
         if (dp > 0) {
           n += s.substring(c, pos);
-          c += pos + dp;
         }
-        pos = s.indexOf(symb, pos);
+        c = pos + dp;
+        pos = s.indexOf(symb, c);
       }
       n += s.substring(c);
       return n;
@@ -151,7 +153,7 @@ class UploadController extends ResourceController {
           var n = t.toTranslit(source: f._filename);
           n = n.replaceAll(defaultNameRegExp, '-');
           n = removeDuplicates(n, '-');
-
+          n = n.toLowerCase();
           f.uploadFileName = n;
           f.preventDefault = false;
           f.data = p;

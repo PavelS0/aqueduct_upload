@@ -123,9 +123,10 @@ class UploadController extends ResourceController {
         int dp = duplicates(s, pos++);
         if (dp > 0) {
           n += s.substring(c, pos);
+          c = pos + dp;
         }
-        c = pos + dp;
-        pos = s.indexOf(symb, c);
+
+        pos = s.indexOf(symb, pos + dp);
       }
       n += s.substring(c);
       return n;
